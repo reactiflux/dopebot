@@ -1,0 +1,17 @@
+{
+  "name": "brucelee",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon ./src/main.js"
+  },
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "dotenv": "^6.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9",
+    "prettier": "^1.15.3"
+  }
+}
