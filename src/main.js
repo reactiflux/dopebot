@@ -66,8 +66,8 @@ const addResultToLog = messageId => res => {
   resultLog[messageId] = res;
 };
 
-const logToConsole = ([error, stdout, stderr, message]) => {
-  console.log(error, stdout, stderr, message.content);
+const logToConsole = ([error, stdout, stderr, { content }]) => {
+  console.log({ error, stdout, stderr, content });
 };
 
 message$
