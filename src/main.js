@@ -8,7 +8,8 @@ const {
   mergeMap,
   share,
   throttleTime,
-  tap
+  tap,
+  pluck
 } = require("rxjs/operators");
 require("dotenv").config();
 
@@ -59,6 +60,7 @@ const client = new Discord.Client();
 
 const message$ = discordObservable(client, "message");
 const messageUpdate$ = discordObservable(client, "messageUpdate");
+const messageDelete$ = discordObservable(client, "messageDelete");
 
 const resultLog = {};
 
@@ -103,6 +105,16 @@ messageUpdate$
     resultLog[message.id]
       .edit(formatResponse(error, stdout), messageOptions)
       .then(addResultToLog(message.id));
+  });
+
+messageDelete$
+  .pipe(
+    pluck("id"),
+    filter(messageId => messageId in resultLog)
+  )
+  .subscribe(messageId => {
+    resultLog[messageId].delete();
+    delete resultLog[messageId];
   });
 
 client.login(process.env.BOT_TOKEN);
