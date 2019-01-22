@@ -7,20 +7,66 @@ const {
   map,
   mergeMap,
   share,
-  tap,
   throttleTime
 } = require("rxjs/operators");
 require("dotenv").config();
 
-const client = new Discord.Client();
-const regex = /`{3}js?([\s\S]*)`{3}/;
+const JS = /`{3}js?([\s\S]*)`{3}/;
+const HELP = /^\?h[ea]lp$/;
+const EVAL = /^\?eval/;
 
-const message$ = fromEventPattern(handler => {
-  client.on("message", handler);
-}).pipe(share());
+const discordObservable = (discordClient, eventName) =>
+  share()(fromEventPattern(discordClient.on.bind(discordClient, eventName)));
+const throttleKey = (keySelector, duration) => observable =>
+  mergeMap(obs => obs.pipe(throttleTime(duration)))(
+    groupBy(keySelector)(observable)
+  );
+
+const messageOptions = { code: "js" };
+const bashOptions = { timeout: 2000, shell: "/bin/bash" };
+const bashCommand = code =>
+  `deno <( echo -e "['libdeno','deno','compilerMain'].forEach(p=>delete window[p]);console.log(eval(atob('${code}')))" )`;
+const formatResponse = (error, stdout) => {
+  if (error && error.killed) {
+    return "That took too long (2s)";
+  }
+
+  if (error) {
+    return error.message.split(/\r?\n/)[1];
+  }
+
+  if (stdout.length > 500) {
+    return "tl;dr";
+  }
+
+  return stdout;
+};
+const doTheThing = message =>
+  of(message).pipe(
+    map(msg => msg.content.match(JS)),
+    filter(matches => Array.isArray(matches) && matches.length === 2),
+    map(matches => matches[1]),
+    map(code => Buffer.from(code).toString("base64")),
+    map(bashCommand),
+    mergeMap(command =>
+      fromEventPattern(exec.bind(undefined, command, bashOptions))
+    ),
+    map(result => result.concat(message))
+  );
+
+const client = new Discord.Client();
+
+const message$ = discordObservable(client, "message");
+const messageUpdate$ = discordObservable(client, "messageUpdate");
+
+const resultLog = {};
+
+const addResultToLog = res => {
+  resultLog[message.id] = res;
+};
 
 message$
-  .pipe(filter(message => /^\?h[ea]lp$/.test(message.content)))
+  .pipe(filter(message => HELP.test(message.content)))
   .subscribe(message => {
     message.channel.send(
       "Need some help evaluating your hacky code? Ooof. Send a message like\n?eval\n\\```js\nput your code here\n\\```"
@@ -29,45 +75,28 @@ message$
 
 message$
   .pipe(
-    filter(message => /^\?eval/.test(message.content)),
-    groupBy(message => message.author.id),
-    mergeMap(msg$ => msg$.pipe(throttleTime(30 * 1000))),
-    mergeMap(message =>
-      of(message).pipe(
-        map(msg => msg.content.match(regex)),
-        filter(matches => Array.isArray(matches) && matches.length === 2),
-        map(matches => matches[1]),
-        map(code => Buffer.from(code).toString("base64")),
-        mergeMap(encoded =>
-          fromEventPattern(handler => {
-            exec(
-              `deno <( echo -e "['libdeno','deno','compilerMain'].forEach(p=>delete window[p]);console.log(eval(window.atob('${encoded}')))" )`,
-              { timeout: 2000, shell: "/bin/bash" },
-              handler
-            );
-          })
-        ),
-        map(result => result.concat(message))
-      )
-    ),
-    tap(console.log)
+    filter(message => EVAL.test(message.content)),
+    throttleKey(message => message.author.id, 30 * 1000),
+    mergeMap(doTheThing)
   )
-  .subscribe(
-    ([error, stdout, stderr, message]) => {
-      const res = stderr.length ? stderr : stdout;
+  .subscribe(([error, stdout, stderr, message]) => {
+    console.log(error, stdout, stderr, message.content);
+    message.channel
+      .send(formatResponse(error, stdout), messageOptions)
+      .then(addResultToLog);
+  });
 
-      if ((error && error.killed) || res.length > 500) {
-        message.channel.send("tl;dr");
-        return;
-      }
-
-      message.channel.send(error ? error.message.split(/\r?\n/)[1] : res, {
-        code: "js"
-      });
-    },
-    error => {
-      console.log(error);
-    }
-  );
+messageUpdate$
+  .pipe(
+    filter(messages => messages[0].id in resultLog),
+    map(messages => messages[1]),
+    mergeMap(doTheThing)
+  )
+  .subscribe(([error, stdout, stderr, message]) => {
+    console.log(error, stdout, stderr, message.content);
+    resultLog[message.id]
+      .edit(formatResponse(error, stdout), messageOptions)
+      .then(addResultToLog);
+  });
 
 client.login(process.env.BOT_TOKEN);
