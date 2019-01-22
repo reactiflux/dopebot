@@ -7,7 +7,8 @@ const {
   map,
   mergeMap,
   share,
-  throttleTime
+  throttleTime,
+  tap
 } = require("rxjs/operators");
 require("dotenv").config();
 
@@ -61,8 +62,12 @@ const messageUpdate$ = discordObservable(client, "messageUpdate");
 
 const resultLog = {};
 
-const addResultToLog = res => {
-  resultLog[message.id] = res;
+const addResultToLog = messageId => res => {
+  resultLog[messageId] = res;
+};
+
+const logToConsole = ([error, stdout, stderr, message]) => {
+  console.log(error, stdout, stderr, message.content);
 };
 
 message$
@@ -77,26 +82,27 @@ message$
   .pipe(
     filter(message => EVAL.test(message.content)),
     throttleKey(message => message.author.id, 30 * 1000),
-    mergeMap(doTheThing)
+    mergeMap(doTheThing),
+    tap(logToConsole)
   )
-  .subscribe(([error, stdout, stderr, message]) => {
-    console.log(error, stdout, stderr, message.content);
+  .subscribe(([error, stdout, _stderr, message]) => {
     message.channel
       .send(formatResponse(error, stdout), messageOptions)
-      .then(addResultToLog);
+      .then(addResultToLog(message.id));
   });
 
 messageUpdate$
   .pipe(
-    filter(messages => messages[0].id in resultLog),
     map(messages => messages[1]),
-    mergeMap(doTheThing)
+    filter(message => EVAL.test(message.content)),
+    filter(message => message.id in resultLog),
+    mergeMap(doTheThing),
+    tap(logToConsole)
   )
-  .subscribe(([error, stdout, stderr, message]) => {
-    console.log(error, stdout, stderr, message.content);
+  .subscribe(([error, stdout, _stderr, message]) => {
     resultLog[message.id]
       .edit(formatResponse(error, stdout), messageOptions)
-      .then(addResultToLog);
+      .then(addResultToLog(message.id));
   });
 
 client.login(process.env.BOT_TOKEN);
