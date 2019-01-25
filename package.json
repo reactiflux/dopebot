@@ -4,15 +4,19 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon ./src/main.js"
+    "start": "ts-node ./src/main.ts"
   },
   "dependencies": {
+    "@types/dotenv": "^6.1.0",
+    "@types/node": "^10.12.18",
     "discord.js": "^11.4.2",
     "dotenv": "^6.2.0",
-    "rxjs": "^6.3.3"
+    "rxjs": "^6.3.3",
+    "ts-node": "^8.0.1",
+    "typescript": "^3.2.4"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9",
-    "prettier": "^1.15.3"
+    "prettier": "^1.15.3",
+    "tslint": "^5.12.1"
   }
 }
