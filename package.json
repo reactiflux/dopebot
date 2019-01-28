@@ -1,8 +1,9 @@
 {
   "name": "brucelee",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/main.ts",
   "license": "MIT",
+  "repository": "github:evertbouw/brucelee",
   "scripts": {
     "start": "ts-node ./src/main.ts"
   },
