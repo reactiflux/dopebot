@@ -3,7 +3,7 @@ import { Client, Message } from "discord.js";
 import { config } from "dotenv";
 import { of } from "rxjs";
 import { filter, map, mergeMap, tap } from "rxjs/operators";
-import { EVAL, HELP, JS } from "./consts";
+import { EVAL, HELP, JS, DESTRUCT, OWNER } from "./consts";
 import { createExecObservable, discordObservable, throttleKey } from "./observableHelpers";
 import { addResultToLog, getFromResultLog, isInResultLog, removeFromResultLog } from "./resultLog";
 
@@ -81,6 +81,15 @@ message$
       messageOptions
     ) as Promise<Message>).then(addResultToLog(message.id));
   });
+
+message$.pipe(
+  filter(message => DESTRUCT.test(message.content) && message.author.id === OWNER),
+).subscribe(message => {
+  message.channel.send("GOOD BYE").then(() => {
+    client.destroy();
+    process.exit();
+  });
+});
 
 messageUpdate$
   .pipe(
