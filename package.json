@@ -9,15 +9,15 @@
   },
   "dependencies": {
     "@types/dotenv": "^6.1.0",
-    "@types/node": "^10.12.18",
+    "@types/node": "^10.12.19",
     "discord.js": "^11.4.2",
     "dotenv": "^6.2.0",
-    "rxjs": "^6.3.3",
-    "ts-node": "^8.0.1",
+    "rxjs": "^6.4.0",
+    "ts-node": "^8.0.2",
     "typescript": "^3.2.4"
   },
   "devDependencies": {
-    "prettier": "^1.15.3",
+    "prettier": "^1.16.2",
     "tslint": "^5.12.1"
   }
 }

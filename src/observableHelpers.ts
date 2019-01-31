@@ -34,4 +34,4 @@ type CreateExecObservable = (
 ) => (command: string) => Observable<ExecResult>;
 
 export const createExecObservable: CreateExecObservable = bashOptions => command =>
-  fromEventPattern(exec.bind(undefined, command, bashOptions) as any);
+  fromEventPattern(exec.bind(undefined, command, bashOptions));
