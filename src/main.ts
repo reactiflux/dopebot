@@ -64,7 +64,7 @@ message$
   .pipe(filter(message => HELP.test(message.content)))
   .subscribe(message => {
     message.channel.send(
-      "Need some help evaluating your hacky code? Ooof. Send a message like\n?eval\n\\```js\nput your code here\n\\```"
+      "I can eval your code if you send a message like\n?eval\n\\```js\nput your code here\n\\```\nMade a mistake? Edit your message and I'll edit my reply."
     );
   });
 
