@@ -8,4 +8,6 @@ RUN npm i
 
 RUN /bin/bash -c 'curl -L https://deno.land/x/install/install.sh | sh'
 
+ENV PATH="/root/.deno/bin:$PATH"
+
 CMD ["npm", "start"]
