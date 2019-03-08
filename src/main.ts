@@ -55,6 +55,9 @@ const client = new Client();
 const message$ = discordObservable(client, "message");
 const messageUpdate$ = discordObservable(client, "messageUpdate");
 const messageDelete$ = discordObservable(client, "messageDelete");
+const error$ = discordObservable(client, "error");
+
+error$.subscribe(console.log);
 
 const logToConsole = ([error, stdout, stderr, { content }]: ThingResult) => {
   console.log({ error, stdout, stderr, content });

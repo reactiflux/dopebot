@@ -10,6 +10,7 @@ export interface DiscordObservable {
   (discordClient: Client, eventName: "messageUpdate"): Observable<
     [Message, Message]
   >;
+  (discordClient: Client, eventName: "error"): Observable<Error>;
 }
 
 export const discordObservable: DiscordObservable = (
