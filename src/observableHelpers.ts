@@ -1,23 +1,16 @@
-import { Client, Message } from "discord.js";
+import { Client } from "discord.js";
 import { Observable, fromEventPattern } from "rxjs";
 import { share, groupBy, mergeMap, throttleTime } from "rxjs/operators";
 import { exec, ExecOptions, ExecException } from "child_process";
+import { DiscordEventMap } from "./DiscordEventMap";
 
-export interface DiscordObservable {
-  (discordClient: Client, eventName: "message" | "messageDelete"): Observable<
-    Message
-  >;
-  (discordClient: Client, eventName: "messageUpdate"): Observable<
-    [Message, Message]
-  >;
-  (discordClient: Client, eventName: "error"): Observable<Error>;
-}
-
-export const discordObservable: DiscordObservable = (
+export const discordObservable = <Event extends keyof DiscordEventMap>(
   discordClient: Client,
-  eventName: string
-): Observable<any> =>
-  share()(fromEventPattern(discordClient.on.bind(discordClient, eventName)));
+  eventName: Event
+): Observable<DiscordEventMap[Event]> =>
+  fromEventPattern<DiscordEventMap[Event]>(handler =>
+    discordClient.on(eventName, handler)
+  ).pipe(share());
 
 export const throttleKey = <Value>(
   keySelector: (value: Value) => any,
@@ -28,11 +21,9 @@ export const throttleKey = <Value>(
     mergeMap(obs => obs.pipe(throttleTime(duration)))
   );
 
-type ExecResult = [ExecException | null, string | Buffer, string | Buffer];
-
-type CreateExecObservable = (
-  bashOptions: ExecOptions
-) => (command: string) => Observable<ExecResult>;
-
-export const createExecObservable: CreateExecObservable = bashOptions => command =>
-  fromEventPattern(exec.bind(undefined, command, bashOptions));
+export const createExecObservable = (execOptions: ExecOptions) => (
+  command: string
+) =>
+  fromEventPattern<[ExecException | null, string | Buffer, string | Buffer]>(
+    handler => exec(command, execOptions, handler)
+  );
