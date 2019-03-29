@@ -2,10 +2,10 @@
 
 A Discord bot that evals javascript code and posts the result.
 
-Requirements
+## Using the bot
 
-- Bash
-- Node
-- Deno
+This bot lives on Reactiflux! https://www.reactiflux.com/ Type `?help` in a channel to see how it works.
 
-From bash run `npm i` then `npm start`
+## Running the bot
+
+Create an application in https://discordapp.com/developers/applications/. Put the bot token in the .env and build with docker.
