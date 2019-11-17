@@ -16,10 +16,7 @@ export const throttleKey = <Value>(
   keySelector: (value: Value) => any,
   duration: number
 ) => (observable: Observable<Value>) =>
-  observable.pipe(
-    groupBy(keySelector),
-    mergeMap(obs => obs.pipe(throttleTime(duration)))
-  );
+  observable.pipe(groupBy(keySelector), mergeMap(throttleTime(duration)));
 
 export const createExecObservable = (execOptions: ExecOptions) => (
   command: string

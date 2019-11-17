@@ -4,8 +4,17 @@ import { config } from "dotenv";
 import { of } from "rxjs";
 import { filter, map, mergeMap, tap } from "rxjs/operators";
 import { EVAL, HELP, JS, DESTRUCT, OWNER } from "./consts";
-import { createExecObservable, discordObservable, throttleKey } from "./observableHelpers";
-import { addResultToLog, getFromResultLog, isInResultLog, removeFromResultLog } from "./resultLog";
+import {
+  createExecObservable,
+  discordObservable,
+  throttleKey
+} from "./observableHelpers";
+import {
+  addResultToLog,
+  getFromResultLog,
+  isInResultLog,
+  removeFromResultLog
+} from "./resultLog";
 
 config();
 
@@ -59,10 +68,6 @@ const error$ = discordObservable(client, "error");
 
 error$.subscribe(console.log);
 
-const logToConsole = ([error, stdout, stderr, { content }]: ThingResult) => {
-  console.log({ error, stdout, stderr, content });
-};
-
 message$
   .pipe(filter(message => HELP.test(message.content)))
   .subscribe(message => {
@@ -75,34 +80,44 @@ message$
   .pipe(
     filter(message => EVAL.test(message.content)),
     throttleKey(message => message.author.id, 30 * 1000),
-    mergeMap(doTheThing),
-    tap(logToConsole)
+    tap(message => {
+      message.channel.startTyping();
+    }),
+    mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
+    message.channel.stopTyping();
     (message.channel.send(
       formatResponse(error, stdout),
       messageOptions
     ) as Promise<Message>).then(addResultToLog(message.id));
   });
 
-message$.pipe(
-  filter(message => DESTRUCT.test(message.content) && message.author.id === OWNER),
-).subscribe(message => {
-  message.channel.send("GOOD BYE").then(() => {
-    client.destroy();
-    process.exit();
+message$
+  .pipe(
+    filter(
+      message => message.author.id === OWNER && DESTRUCT.test(message.content)
+    )
+  )
+  .subscribe(message => {
+    message.channel.send("GOOD BYE").then(() => {
+      client.destroy();
+      process.exit();
+    });
   });
-});
 
 messageUpdate$
   .pipe(
     map(messages => messages[1]),
     filter(message => EVAL.test(message.content)),
     filter(message => isInResultLog(message.id)),
-    mergeMap(doTheThing),
-    tap(logToConsole)
+    tap(message => {
+      message.channel.startTyping();
+    }),
+    mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
+    message.channel.stopTyping();
     getFromResultLog(message.id)
       .edit(formatResponse(error, stdout), messageOptions)
       .then(addResultToLog(message.id));
@@ -115,4 +130,6 @@ messageDelete$
   )
   .subscribe(removeFromResultLog);
 
-client.login(process.env.BOT_TOKEN);
+client.login(process.env.BOT_TOKEN).then(() => {
+  client.user.setActivity("your code :robot: ?help", { type: "PLAYING" });
+});
