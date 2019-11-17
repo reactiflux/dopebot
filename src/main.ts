@@ -2,7 +2,7 @@ import { ExecException } from "child_process";
 import { Client, Message } from "discord.js";
 import { config } from "dotenv";
 import { of } from "rxjs";
-import { filter, map, mergeMap, tap } from "rxjs/operators";
+import { filter, map, mergeMap } from "rxjs/operators";
 import { EVAL, HELP, JS, DESTRUCT, OWNER } from "./consts";
 import {
   createExecObservable,
@@ -52,9 +52,6 @@ const doTheThing = (message: Message) =>
   of(message).pipe(
     map(msg => msg.content.match(JS)),
     filter((matches): matches is RegExpMatchArray => Array.isArray(matches)),
-    tap(() => {
-      message.channel.startTyping();
-    }),
     map(matches => matches[1]),
     map(code => Buffer.from(code).toString("base64")),
     map(bashCommand),
@@ -86,7 +83,6 @@ message$
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
-    message.channel.stopTyping(true);
     (message.channel.send(
       formatResponse(error, stdout),
       messageOptions
@@ -114,7 +110,6 @@ messageUpdate$
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
-    message.channel.stopTyping(true);
     getFromResultLog(message.id)
       .edit(formatResponse(error, stdout), messageOptions)
       .then(addResultToLog(message.id));
