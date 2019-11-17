@@ -131,5 +131,5 @@ messageDelete$
   .subscribe(removeFromResultLog);
 
 client.login(process.env.BOT_TOKEN).then(() => {
-  client.user.setActivity("your code :robot: ?help", { type: "PLAYING" });
+  client.user.setActivity("your code", { type: "PLAYING" });
 });
