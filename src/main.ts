@@ -52,6 +52,9 @@ const doTheThing = (message: Message) =>
   of(message).pipe(
     map(msg => msg.content.match(JS)),
     filter((matches): matches is RegExpMatchArray => Array.isArray(matches)),
+    tap(() => {
+      message.channel.startTyping();
+    }),
     map(matches => matches[1]),
     map(code => Buffer.from(code).toString("base64")),
     map(bashCommand),
@@ -80,9 +83,6 @@ message$
   .pipe(
     filter(message => EVAL.test(message.content)),
     throttleKey(message => message.author.id, 30 * 1000),
-    tap(message => {
-      message.channel.startTyping();
-    }),
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
@@ -111,9 +111,6 @@ messageUpdate$
     map(messages => messages[1]),
     filter(message => EVAL.test(message.content)),
     filter(message => isInResultLog(message.id)),
-    tap(message => {
-      message.channel.startTyping();
-    }),
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
