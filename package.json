@@ -8,6 +8,7 @@
     "start": "ts-node ./src/main.ts"
   },
   "dependencies": {
+    "@discordjs/uws": "^10.149.0",
     "@types/dotenv": "^8.2.0",
     "@types/node": "^12.12.8",
     "discord.js": "^11.5.1",
