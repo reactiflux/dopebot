@@ -86,7 +86,7 @@ message$
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
-    message.channel.stopTyping();
+    message.channel.stopTyping(true);
     (message.channel.send(
       formatResponse(error, stdout),
       messageOptions
@@ -114,7 +114,7 @@ messageUpdate$
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
-    message.channel.stopTyping();
+    message.channel.stopTyping(true);
     getFromResultLog(message.id)
       .edit(formatResponse(error, stdout), messageOptions)
       .then(addResultToLog(message.id));
