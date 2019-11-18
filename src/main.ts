@@ -31,7 +31,7 @@ const formatResponse = (
   }
 
   if (error) {
-    return error.message.split(/\r?\n/)[1];
+    return error.message;
   }
 
   if (stdout.length > 500) {
