@@ -1,9 +1,11 @@
 import { ExecException } from "child_process";
 import { Client, Message } from "discord.js";
 import { config } from "dotenv";
+import fs from "fs";
 import { of } from "rxjs";
 import { filter, map, mergeMap } from "rxjs/operators";
-import { EVAL, HELP, JS, DESTRUCT, OWNER } from "./consts";
+import { promisify } from "util";
+import { DESTRUCT, EVAL, HELP, JS, OWNER } from "./consts";
 import {
   createExecObservable,
   discordObservable,
@@ -16,12 +18,13 @@ import {
   removeFromResultLog
 } from "./resultLog";
 
+const writeFile = promisify(fs.writeFile);
+
 config();
 
-const messageOptions = { code: "js" };
+const messageOptions = { code: "ts" };
 const bashOptions = { timeout: 2000, shell: "/bin/bash" };
-const bashCommand = (code: string) =>
-  `NO_COLOR=true deno <( echo -e "console.log(eval(atob('${code}')))" )`;
+const bashCommand = (fileName: string) => `NO_COLOR=true deno ${fileName}`;
 const formatResponse = (
   error: ExecException | null,
   stdout: string | Buffer
@@ -31,7 +34,12 @@ const formatResponse = (
   }
 
   if (error) {
-    return error.message;
+    return error.message
+      .split(/\r?\n/)
+      .filter(
+        str => !str.startsWith("Command failed") && !str.includes("file:///")
+      )
+      .join("\n");
   }
 
   if (stdout.length > 500) {
@@ -53,7 +61,10 @@ const doTheThing = (message: Message) =>
     map(msg => msg.content.match(JS)),
     filter((matches): matches is RegExpMatchArray => Array.isArray(matches)),
     map(matches => matches[1]),
-    map(code => Buffer.from(code).toString("base64")),
+    mergeMap(code => {
+      const fileName = `/tmp/${Date.now()}_${Math.random()}.ts`;
+      return writeFile(fileName, code).then(() => fileName);
+    }),
     map(bashCommand),
     mergeMap(createExecObservable(bashOptions)),
     map(result => [...result, message] as ThingResult)
@@ -66,7 +77,7 @@ const messageUpdate$ = discordObservable(client, "messageUpdate");
 const messageDelete$ = discordObservable(client, "messageDelete");
 const error$ = discordObservable(client, "error");
 
-error$.subscribe(console.log);
+error$.subscribe(() => {});
 
 message$
   .pipe(filter(message => HELP.test(message.content)))
