@@ -42,6 +42,10 @@ const formatResponse = (
       .join("\n");
   }
 
+  if (stdout.length === 0) {
+    return "Got nothing! Make sure you console.log something"
+  }
+
   if (stdout.length > 500) {
     return "tl;dr";
   }
@@ -60,7 +64,7 @@ const doTheThing = (message: Message) =>
   of(message).pipe(
     map(msg => msg.content.match(JS)),
     filter((matches): matches is RegExpMatchArray => Array.isArray(matches)),
-    map(matches => matches[1]),
+    map(matches => matches[2]),
     mergeMap(code => {
       const fileName = `/tmp/${Date.now()}_${Math.random()}.ts`;
       return writeFile(fileName, code).then(() => fileName);
