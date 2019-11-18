@@ -23,14 +23,14 @@ const writeFile = promisify(fs.writeFile);
 config();
 
 const messageOptions = { code: "ts" };
-const bashOptions = { timeout: 2000, shell: "/bin/bash" };
+const bashOptions = { timeout: 5000, shell: "/bin/bash" };
 const bashCommand = (fileName: string) => `NO_COLOR=true deno ${fileName}`;
 const formatResponse = (
   error: ExecException | null,
   stdout: string | Buffer
 ) => {
   if (error && error.killed) {
-    return "That took too long (2s)";
+    return "That took too long (5s)";
   }
 
   if (error) {
@@ -87,7 +87,7 @@ message$
   .pipe(filter(message => HELP.test(message.content)))
   .subscribe(message => {
     message.channel.send(
-      "I can eval your code if you send a message like\n?eval\n\\```js\nput your code here\n\\```\nMade a mistake? Edit your message and I'll edit my reply."
+      "I can eval your code if you send a message like\n?eval\n\\```js\nconsole.log('put your code here');\n\\```\nMade a mistake? Edit your message and I'll edit my reply."
     );
   });
 
