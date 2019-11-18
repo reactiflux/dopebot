@@ -6,7 +6,7 @@ COPY . /app
 
 RUN npm i
 
-RUN /bin/bash -c 'curl -fsSL https://deno.land/x/install/install.sh | sh -s v0.3.3'
+RUN /bin/bash -c 'curl -fsSL https://deno.land/x/install/install.sh | sh'
 
 ENV PATH="/root/.deno/bin:$PATH"
 
