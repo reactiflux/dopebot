@@ -21,7 +21,7 @@ config();
 const messageOptions = { code: "js" };
 const bashOptions = { timeout: 2000, shell: "/bin/bash" };
 const bashCommand = (code: string) =>
-  `deno <( echo -e "['libdeno','deno','Deno','compilerMain'].forEach(p=>delete window[p]);console.log(eval(atob('${code}')))" )`;
+  `deno <( echo -e "console.log(eval(atob('${code}')))" )`;
 const formatResponse = (
   error: ExecException | null,
   stdout: string | Buffer
