@@ -121,13 +121,19 @@ messageUpdate$
     filter(messages => messages[0].createdTimestamp > Date.now() - FIVE_MINS),
     map(messages => messages[1]),
     filter(message => EVAL.test(message.content)),
-    filter(message => isInResultLog(message.id)),
     mergeMap(doTheThing)
   )
   .subscribe(([error, stdout, _stderr, message]) => {
-    getFromResultLog(message.id)
-      .edit(formatResponse(error, stdout), messageOptions)
-      .then(addResultToLog(message.id));
+    if (isInResultLog(message.id)) {
+      getFromResultLog(message.id)
+        .edit(formatResponse(error, stdout), messageOptions)
+        .then(addResultToLog(message.id));
+    } else {
+      (message.channel.send(
+        formatResponse(error, stdout),
+        messageOptions
+      ) as Promise<Message>).then(addResultToLog(message.id));
+    }
   });
 
 messageDelete$
