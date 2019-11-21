@@ -64,9 +64,8 @@ const doTheThing = (message: Message) =>
   of(message).pipe(
     map(msg => msg.content.match(JS)),
     filter((matches): matches is RegExpMatchArray => Array.isArray(matches)),
-    map(matches => matches[2]),
-    mergeMap(code => {
-      const fileName = `/tmp/${Date.now()}_${Math.random()}.ts`;
+    mergeMap(([,type, code]) => {
+      const fileName = `/tmp/${Date.now()}_${Math.random()}.${type}`;
       return writeFile(fileName, code).then(() => fileName);
     }),
     map(bashCommand),
