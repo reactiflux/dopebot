@@ -3,3 +3,4 @@ export const HELP = /^\?h[ea]lp$/;
 export const EVAL = /^\?eval/;
 export const DESTRUCT = /^\?SELFDESTRUCT$/;
 export const OWNER = "230054162719571979";
+export const FIVE_MINS = 5 * 60 * 1000;

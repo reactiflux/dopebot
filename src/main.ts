@@ -5,7 +5,7 @@ import fs from "fs";
 import { of } from "rxjs";
 import { filter, map, mergeMap } from "rxjs/operators";
 import { promisify } from "util";
-import { DESTRUCT, EVAL, HELP, JS, OWNER } from "./consts";
+import { DESTRUCT, EVAL, HELP, JS, OWNER, FIVE_MINS } from "./consts";
 import {
   createExecObservable,
   discordObservable,
@@ -118,6 +118,7 @@ message$
 
 messageUpdate$
   .pipe(
+    filter(messages => messages[0].createdTimestamp > Date.now() - FIVE_MINS),
     map(messages => messages[1]),
     filter(message => EVAL.test(message.content)),
     filter(message => isInResultLog(message.id)),
