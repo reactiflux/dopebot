@@ -97,7 +97,7 @@ merge(
         .edit(formatResponse(error, output as string), messageOptions)
         .then(addResultToLog(id));
     } else {
-      (channel.sendMessage(
+      (channel.send(
         formatResponse(error, output as string),
         messageOptions
       ) as Promise<Message>).then(addResultToLog(id));
