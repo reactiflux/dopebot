@@ -8,4 +8,4 @@ This bot lives on Reactiflux! https://www.reactiflux.com/ Type `?help` in a chan
 
 ## Running the bot
 
-Create an application in https://discordapp.com/developers/applications/. Put the bot token in the .env and build with docker.
+Create an application in https://discordapp.com/developers/applications/. Put the bot token in the .env and run `npm run start`
