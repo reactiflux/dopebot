@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "./src/main.ts",
   "license": "MIT",
-  "repository": "git@github.com:evertbouw/brucelee.git",
+  "repository": "git@github.com:reactiflux/dopebot.git",
   "author": "Evert Bouw <bouw@outlook.com>",
   "scripts": {
     "start": "ts-node ./src/main.ts",

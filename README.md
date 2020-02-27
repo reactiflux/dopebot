@@ -1,4 +1,4 @@
-# brucelee
+# dopebot
 
 A Discord bot that evals javascript code and posts the result.
 
