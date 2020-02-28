@@ -14,7 +14,8 @@ import {
   messageOptions,
   ONE_MIN,
   OWNER,
-  THIRTY_SECS
+  THIRTY_SECS,
+  UPTIME
 } from "./consts";
 import { formatResponse } from "./formatResponse";
 import { fromDiscordEvent } from "./observables/fromDiscordEvent";
@@ -26,6 +27,7 @@ import {
   isInResultLog,
   removeFromResultLog
 } from "./resultLog";
+import { humanizeTime } from "./humanizeTime";
 
 const writeFile = promisify(fs.writeFile);
 const deleteFile = promisify(fs.unlink);
@@ -41,6 +43,9 @@ const message$ = fromDiscordEvent(client, "message");
 const messageUpdate$ = fromDiscordEvent(client, "messageUpdate");
 const messageDelete$ = fromDiscordEvent(client, "messageDelete");
 
+const start = Date.now();
+let count = 0;
+
 message$
   .pipe(
     filter(message => HELP.test(message.content)),
@@ -50,6 +55,15 @@ message$
     message.channel.send(
       "I can eval your code if you send a message like\n?eval\n\\```js\nconsole.log('put your code here');\n\\```\nYou can edit or delete your messages! I also know TS!"
     );
+  });
+
+message$
+  .pipe(
+    filter(message => UPTIME.test(message.content)),
+    throttleKey(message => message.channel.id, ONE_MIN)
+  )
+  .subscribe(message => {
+    message.channel.send(`I've been up for ${humanizeTime(Date.now() - start)}. In that time I've eval'd ${count} snippets!`);
   });
 
 merge(
@@ -92,6 +106,7 @@ merge(
     delayWhen(({ fileName }) => from(deleteFile(fileName)))
   )
   .subscribe(({ message: { channel, id }, result: [error, output] }) => {
+    count += 1;
     if (isInResultLog(id)) {
       getFromResultLog(id)
         .edit(formatResponse(error, output as string), messageOptions)

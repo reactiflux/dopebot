@@ -2,6 +2,7 @@ export const CODE = /`{3}(ts|js)\r?\n([\s\S]*)`{3}/i;
 export const HELP = /\?h[ea]lp$/i;
 export const EVAL = /\?eval/i;
 export const DESTRUCT = /\?SELFDESTRUCT/i;
+export const UPTIME = /\?uptime/i;
 export const OWNER = "230054162719571979";
 
 export const THIRTY_SECS = 30 * 1_000;
