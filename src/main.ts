@@ -75,7 +75,7 @@ merge(
   messageUpdate$.pipe(
     filter(messages => messages[0].createdTimestamp > Date.now() - FIVE_MINS),
     map(messages => messages[1]),
-    filter(message => EVAL.test(message.content)),
+    filter(message => EVAL.test(message.content) && message.author.id !== BOT),
     throttleKey(message => message.author.id, THIRTY_SECS),
   )
 )
