@@ -15,7 +15,8 @@ import {
   ONE_MIN,
   OWNER,
   THIRTY_SECS,
-  UPTIME
+  UPTIME,
+  BOT
 } from "./consts";
 import { formatResponse } from "./formatResponse";
 import { fromDiscordEvent } from "./observables/fromDiscordEvent";
@@ -68,7 +69,7 @@ message$
 
 merge(
   message$.pipe(
-    filter(message => EVAL.test(message.content)),
+    filter(message => EVAL.test(message.content) && message.author.id !== BOT),
     throttleKey(message => message.author.id, THIRTY_SECS),
   ),
   messageUpdate$.pipe(
