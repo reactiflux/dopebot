@@ -141,6 +141,5 @@ message$
   });
 
 client.login(process.env.BOT_TOKEN).then(() => {
-  console.log(client.guilds.map(guild => ({ id: guild.id, name: guild.name })));
-  client.user.setActivity("your code", { type: "PLAYING" });
+  client.user!.setActivity("your code", { type: "PLAYING" });
 });

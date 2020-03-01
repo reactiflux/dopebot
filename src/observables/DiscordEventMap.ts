@@ -1,8 +1,6 @@
 import {
   Channel,
   Message,
-  ClientUserGuildSettings,
-  ClientUserSettings,
   Emoji,
   Guild,
   User,
@@ -10,7 +8,6 @@ import {
   Collection,
   Snowflake,
   MessageReaction,
-  RateLimitInfo,
   Role,
   UserResolvable
 } from "discord.js";
@@ -20,8 +17,6 @@ export interface DiscordEventMap {
   channelDelete: Channel;
   channelPinsUpdate: [Channel, Date];
   channelUpdate: [Channel, Channel];
-  clientUserGuildSettingsUpdate: ClientUserGuildSettings;
-  clientUserSettingsUpdate: ClientUserSettings;
   debug: string;
   disconnect: any;
   emojiCreate: Emoji;
@@ -48,7 +43,6 @@ export interface DiscordEventMap {
   messageReactionRemoveAll: Message;
   messageUpdate: [Message, Message];
   presenceUpdate: [GuildMember, GuildMember];
-  rateLimit: RateLimitInfo;
   ready: void;
   reconnecting: void;
   resume: number;
