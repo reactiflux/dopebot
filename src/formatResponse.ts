@@ -8,8 +8,8 @@ export const formatResponse = (error: ExecException | null, output: string) => {
 
   if (error) {
     return error.message
+      .replace(COLOR_TAGS, "")
       .split(/\r?\n/)
-      .map(str => str.replace(COLOR_TAGS, ""))
       .filter(
         str => !str.startsWith("Command failed") && !str.includes("file:///")
       )
