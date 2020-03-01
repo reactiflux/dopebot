@@ -63,7 +63,7 @@ message$
     throttleKey(message => message.channel.id, ONE_MIN)
   )
   .subscribe(message => {
-    message.channel.send(`I've been up for ${humanizeTime(Date.now() - start)}. In that time I've eval'd ${count} snippets!`);
+    message.channel.send(`I've been up for ${humanizeTime(Date.now() - start)}. In that time I've eval'd ${count} snippet${count === 1 ? "" : "s"}!`);
   });
 
 merge(
