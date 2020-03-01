@@ -1,4 +1,5 @@
 import { ExecException } from "child_process";
+import { COLOR_TAGS } from "./consts";
 
 export const formatResponse = (error: ExecException | null, output: string) => {
   if (error && error.killed) {
@@ -8,6 +9,7 @@ export const formatResponse = (error: ExecException | null, output: string) => {
   if (error) {
     return error.message
       .split(/\r?\n/)
+      .map(str => str.replace(COLOR_TAGS, ""))
       .filter(
         str => !str.startsWith("Command failed") && !str.includes("file:///")
       )

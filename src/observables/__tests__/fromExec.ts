@@ -19,7 +19,7 @@ describe("fromExec", () => {
     }).toPromise();
 
     expect(output).toContain(
-      "error: Uncaught TypeError: console.bog is not a function"
+      "Uncaught TypeError: console.bog is not a function"
     );
   });
 });

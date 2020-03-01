@@ -5,6 +5,8 @@ export const HELP = /\?h[ea]lp$/i;
 export const EVAL = /\?eval/i;
 export const DESTRUCT = /\?SELFDESTRUCT/i;
 export const UPTIME = /\?uptime/i;
+export const COLOR_TAGS = /\033\[\d+m/g
+
 export const OWNER = "230054162719571979";
 export const BOT = "683749647528755369";
 
